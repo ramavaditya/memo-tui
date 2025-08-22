@@ -23,16 +23,16 @@ Masonry MemoPad is a simple, curses-based memo pad application that organizes no
 
 ## Usage
 
-1. Save the `grid_memopad.py` file to your desired directory.
+1. Save the `memo.py` file to your desired directory.
 2. Run the application using the following command:
    ```bash
-   python grid_memopad.py
+   python memo.py
    ```
 3. Interact with the memo pad using the commands described in the **Features** section.
 
 ## File Structure
 
-- `grid_memopad.py`: The main Python script containing the application logic.
+- `memo.py`: The main Python script containing the application logic.
 - `memopad.json`: The JSON file used for saving and loading notes. This file is created automatically when you save notes.
 
 ## How It Works
