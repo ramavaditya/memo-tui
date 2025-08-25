@@ -30,8 +30,6 @@ class MasonryMemoPad:
             Note("Press 'e' for Last edit"),
             Note("Press 'c' For clear All"),
             Note("Hello World Its Avro"),
-            Note("ようこそ世界"),
-            Note("メモ取りましょう"),
         ]
         if not os.path.exists(self.path):
             self.notes = initial_notes
