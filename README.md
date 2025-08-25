@@ -10,8 +10,11 @@ Masonry MemoPad is a simple, curses-based memo pad application that organizes no
   - **Save Notes**: Press `s` to save all notes to a JSON file (`memopad.json`).
   - **Quit**: Press `q` to exit the application.
   - **Scroll**: Use the arrow keys (`↑` and `↓`) to scroll through the notes if the content exceeds the terminal height.
-- **Persistence**: Notes are saved to a JSON file and loaded automatically when the application starts.
+  - **Edit Last Note**: Press `e` to edit the last note.
+  - **Clear All Notes**: Press `c` to clear all notes.
+- **Persistence**: Notes are saved to a JSON file and loaded automatically when the application starts. Initial notes are permanent and cannot be deleted.
 - **Responsive Layout**: The number of columns adjusts based on the terminal width, ensuring an optimal viewing experience.
+- **Japanese Input Support**: The application supports Japanese and other multi-byte character inputs.
 
 ## Installation
 
@@ -41,7 +44,10 @@ Masonry MemoPad is a simple, curses-based memo pad application that organizes no
 2. **Saving Notes**: Pressing `s` saves all notes to `memopad.json`. If the file already exists, it is overwritten.
 3. **Grid Layout**: Notes are arranged in columns. The number of columns is determined based on the terminal width, with a maximum of 4 columns. Each note adjusts its height to fit its content.
 4. **Scrolling**: If the content exceeds the terminal height, you can scroll up and down using the arrow keys.
-5. **Persistence**: When the application starts, it loads notes from `memopad.json` if the file exists. If the file is missing, sample notes are displayed.
+5. **Editing Notes**: Press `e` to edit the last note. The application ensures the prompt fits within the terminal width.
+6. **Clearing Notes**: Press `c` to clear all notes. Permanent initial notes will remain.
+7. **Persistence**: When the application starts, it loads notes from `memopad.json` if the file exists. Initial notes are always loaded first and cannot be deleted.
+8. **Japanese Input**: The application supports Japanese and other multi-byte character inputs.
 
 ## Notes
 
