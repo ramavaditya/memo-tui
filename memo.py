@@ -1,8 +1,10 @@
 import curses
 import json
+import locale
 import os
 from dataclasses import dataclass
 from typing import List
+import textwrap
 
 @dataclass
 class Note:
@@ -13,6 +15,7 @@ class Note:
 
 class MasonryMemoPad:
     def __init__(self, path: str = "memopad.json", columns: int | None = None) -> None:
+        locale.setlocale(locale.LC_ALL, "")  # Set locale to the user's default
         self.path = path
         self.columns_config = columns
         self.notes: List[Note] = []
@@ -20,21 +23,30 @@ class MasonryMemoPad:
         self.load()
 
     def load(self) -> None:
+        initial_notes = [
+            Note("Press 'n' For new"),
+            Note("Press 's' For save"),
+            Note("Press 'q' For quit"),
+            Note("Press 'e' for Last edit"),
+            Note("Press 'c' For clear All"),
+            Note("Hello World Its Avro"),
+            Note("ようこそ世界"),
+            Note("メモ取りましょう"),
+        ]
         if not os.path.exists(self.path):
-            self.notes = [
-                Note("Welcome to the Masonry MemoPad!"),
-                Note("Press 'n' to add a new note."),
-                Note("Press 's' to save your notes."),
-                Note("Press 'q' to quit."),
-            ]
+            self.notes = initial_notes
             return
         try:
             with open(self.path, "r", encoding="utf-8") as f:
                 data = json.load(f)
             items = data.get("notes", []) if isinstance(data, dict) else data
-            self.notes = [Note(str(item.get("text", ""))) if isinstance(item, dict) else Note(str(item)) for item in items]
+            loaded_notes = [
+                Note(str(item.get("text", ""))) if isinstance(item, dict) else Note(str(item))
+                for item in items
+            ]
+            self.notes = initial_notes + loaded_notes[len(initial_notes):]  # Keep initial notes permanent
         except Exception:
-            self.notes = []
+            self.notes = initial_notes
 
     def save(self) -> None:
         data = {"notes": [note.to_dict() for note in self.notes]}
@@ -55,7 +67,7 @@ class MasonryMemoPad:
         s = stdscr.getstr(h - 1, len(prompt), w - len(prompt) - 1)
         curses.echo(False)
         try:
-            return s.decode()
+            return s.decode(locale.getpreferredencoding())  # Decode using the preferred locale encoding
         except Exception:
             return s.decode("utf-8", "ignore")
 
@@ -113,6 +125,22 @@ class MasonryMemoPad:
             if 0 <= by < content_height:
                 stdscr.addstr(by, x, "+" + ("-" * (col_w - 2)) + "+")
 
+    def clear_notes(self) -> None:
+        """Clear all notes."""
+        self.notes = []
+
+    def edit_last_note(self, stdscr: curses.window) -> None:
+        """Edit the last note."""
+        if not self.notes:
+            return
+        last_note = self.notes[-1]
+        preview = " ".join(str(last_note.text).splitlines())
+        h, w = stdscr.getmaxyx()
+        prompt = f"Edit note: {preview[:w - 15]}"  # Truncate to fit terminal width
+        new_text = self._prompt(stdscr, prompt)
+        if new_text.strip():
+            last_note.text = new_text
+
     def _main(self, stdscr: curses.window) -> None:
         curses.curs_set(0)
         stdscr.keypad(True)
@@ -120,18 +148,25 @@ class MasonryMemoPad:
         while True:
             h, w = stdscr.getmaxyx()
             stdscr.erase()
-            stdscr.addstr(0, 0, "Masonry MemoPad — n: new  s: save  q: quit"[: w - 1])
+            stdscr.addstr(0, 0, "Masonry MemoPad — n: new  s: save  q: quit  c: clear  e: edit last"[: w - 1])
             self._draw_grid(stdscr, h, w)
             stdscr.refresh()
-            ch = stdscr.getch()
-            if ch == ord("q"):
+            try:
+                ch = stdscr.get_wch()  # Use get_wch() for wide character support
+            except KeyboardInterrupt:
                 break
-            elif ch == ord("n"):
+            if ch == "q":
+                break
+            elif ch == "n":
                 text = self._prompt(stdscr, "New note: ")
                 if text.strip():
                     self.notes.append(Note(text))
-            elif ch == ord("s"):
+            elif ch == "s":
                 self.save()
+            elif ch == "c":
+                self.clear_notes()
+            elif ch == "e":
+                self.edit_last_note(stdscr)
             elif ch == curses.KEY_UP:
                 self.scroll = max(0, self.scroll - 1)
             elif ch == curses.KEY_DOWN:
